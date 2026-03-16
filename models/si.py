@@ -3,7 +3,7 @@ from .core import run_model
 def si(N, beta, gamma, days, I0, S0, output_filename="si_model.png"):
     def ode(y, t, p):
         S, I = y
-        dS = -p["β"] * S * I / N
+        dS = -p["β"] * S * I / N 
         dI =  p["β"] * S * I / N - p["γ"] * I
         return [dS, dI]
 

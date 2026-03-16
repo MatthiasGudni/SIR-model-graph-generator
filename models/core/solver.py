@@ -18,7 +18,8 @@ def _math(key):
     return _GREEK.get(key, f"${key}$")
 
 def run_model(name, ode_func, compartments, params, days, output_filename,
-            infected_index=None, annotations=None):
+            infected_index=None, annotations=None,
+            showRe=False, re_func=None):
     """
     Parameters:
         name             : Model name shown in console and graph title
@@ -54,9 +55,8 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
 
     for i, (label, series) in enumerate(zip(labels, solution.T)):
         ax.plot(t, series, label=label, color=COLORS[i % len(COLORS)], linewidth=2)
-    ax.legend(fontsize=11)
 
-    # ── Side panel ────────────────────────────────────────────────────────────
+    # ── Side panel (Parametre + Initialbetingelser) ─────────────────────────
     panel_lines = ["Parametre", "─" * 14, rf"$N$  =  {int(N)}"]
     for k, v in params.items():
         panel_lines.append(f"{_math(k)}  =  {v}")
@@ -65,27 +65,16 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
         for a in annotations:
             panel_lines.append(a["text"])
 
-    ax_panel.text(
-        0.12, 0.97,
-        "\n".join(panel_lines),
-        transform=ax_panel.transAxes,
-        ha="left", va="top",
-        fontsize=11,
-        bbox=dict(boxstyle="round,pad=0.6", fc="white", ec="#cccccc", linewidth=0.8),
-    )
-
-    # ── Initialbetingelser panel ──────────────────────────────────────────────
     init_lines = ["Initialbetingelser", "─" * 14]
     for c in compartments:
         sym = c["label"].split("(")[-1].rstrip(")")
         init_lines.append(f"${sym}(0)$  =  {int(c['y0'])}")
 
-    # Estimate y-start below the params box (0.065 per line + 0.10 for bbox padding)
-    y_init = 0.97 - len(panel_lines) * 0.065 - 0.10
+    combined_lines = panel_lines + [""] + init_lines
 
     ax_panel.text(
-        0.12, max(y_init, 0.02),
-        "\n".join(init_lines),
+        0.12, 0.97,
+        "\n".join(combined_lines),
         transform=ax_panel.transAxes,
         ha="left", va="top",
         fontsize=11,
@@ -155,6 +144,31 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
                 bbox=dict(boxstyle="round,pad=0.35", fc="white",
                           ec="#cccccc", alpha=0.9, linewidth=0.8),
             )
+
+    ax.legend(fontsize=11)
+
+    # ── Effective reproduction number R_e ───────────────────────────────────
+    if showRe and re_func is not None:
+        Re       = re_func(solution, t, params, N)
+        re_color = "#FF5722"
+
+        # ── Mini R_e panel below combined textbox ────────────────────────────
+        combined_box_bottom = 0.97 - len(combined_lines) * 0.065 - 0.10
+        mini_h   = 0.22
+        mini_bot = max(combined_box_bottom - 0.06 - mini_h, 0.01)
+
+        ax_mini = ax_panel.inset_axes((0.25, mini_bot, 0.70, mini_h))
+        ax_mini.plot(t, Re, color=re_color, linewidth=1.0)
+        ax_mini.axhline(1, color=re_color, linestyle=":", alpha=0.5, linewidth=0.8)
+        ax_mini.set_xlim(0, days)
+        ax_mini.set_ylim(bottom=0)
+        ax_mini.set_title(r"ERN over tid", fontsize=8, pad=3, color="#333333")
+        ax_mini.set_xlabel("Dage", fontsize=7, color="#555555")
+        ax_mini.set_ylabel(r"$R_e$", fontsize=7, color="#555555")
+        ax_mini.tick_params(labelsize=6, colors="#555555")
+        #ax_mini.yaxis.label.set_color(re_color)
+        ax_mini.spines[["top", "right"]].set_visible(False)
+        ax_mini.grid(alpha=0.2)
 
     plt.tight_layout(pad=0.5)
     plt.savefig(output_filename, dpi=150)
