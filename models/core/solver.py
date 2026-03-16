@@ -29,7 +29,7 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
         days             : Number of days to simulate
         output_filename  : Path to save the output PNG
         infected_index   : Index of the infected compartment in the compartments list.
-                            If set, adds "top inficerede" and "50% inficerede" annotations
+                            If set, adds "top smittede" and "50% smittede" annotations
                             automatically. E.g. infected_index=1 for SIR (S=0, I=1, R=2)
         annotations      : Optional list of dicts for extra text box annotations:
                             [{"text": "R₀=6.0", "x": 0.98, "y": 0.95}, ...]
@@ -98,7 +98,7 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
         peak_val = np.max(I)
         ax.axvline(peak_day, color=I_color, linestyle="--", alpha=0.4)
         ann_specs.append({
-            "label":  f"Top: {peak_val:.0f} inficerede\n(dag {peak_day:.0f})",
+            "label":  f"Top: {peak_val:.0f} smittede\n(dag {peak_day:.0f})",
             "xy":     (peak_day, peak_val),
             "x_text": _x_text(peak_day),
             "y_text": min(peak_val * 0.95, N * 0.85),
@@ -109,7 +109,7 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
             half_day = t[half_idx]
             ax.axvline(half_day, color=I_color, linestyle=":", alpha=0.4)
             ann_specs.append({
-                "label":  f"50% inficerede\n(dag {half_day:.0f})",
+                "label":  f"50% smittede\n(dag {half_day:.0f})",
                 "xy":     (half_day, N * 0.5),
                 "x_text": _x_text(half_day),
                 "y_text": N * 0.55,
@@ -166,11 +166,30 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
         ax_mini.set_xlabel("Dage", fontsize=7, color="#555555")
         ax_mini.set_ylabel(r"$R_e$", fontsize=7, color="#555555")
         ax_mini.tick_params(labelsize=6, colors="#555555")
-        #ax_mini.yaxis.label.set_color(re_color)
         ax_mini.spines[["top", "right"]].set_visible(False)
         ax_mini.grid(alpha=0.2)
 
-    plt.tight_layout(pad=0.5)
-    plt.savefig(output_filename, dpi=150)
+        # ── Annotate the day R_e crosses below 1 ─────────────────────────────
+        cross_idx = np.argmax(Re < 1)
+        if cross_idx > 0:
+            cross_day = t[cross_idx]
+            cross_val = Re[cross_idx]
+            # Place text left or right depending on position in graph
+            x_off = days * 0.08 if cross_day < days * 0.6 else -days * 0.08
+            x_text = float(np.clip(cross_day + x_off, days * 0.05, days * 0.88))
+            y_lim  = ax_mini.get_ylim()[1]
+            y_text = float(np.clip(cross_val + y_lim * 0.25, y_lim * 0.1, y_lim * 0.85))
+            ax_mini.annotate(
+                f"$R_e$ < 1\n(dag {cross_day:.0f})",
+                xy=(cross_day, cross_val),
+                xytext=(x_text, y_text),
+                arrowprops=dict(arrowstyle="->", color="gray", lw=0.7),
+                fontsize=6, color="#333333",
+                bbox=dict(boxstyle="round,pad=0.3", fc="white",
+                          ec="#cccccc", alpha=0.9, linewidth=0.6),
+            )
+
+    plt.tight_layout(pad=0)
+    plt.savefig(output_filename, dpi=150, bbox_inches="tight", pad_inches=0)
     plt.close()
     print(f"[{name}] Saved as {output_filename} (total: {time.time() - t_start:.2f}s)")

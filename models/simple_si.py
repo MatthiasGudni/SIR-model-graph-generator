@@ -12,7 +12,7 @@ def simple_si(N, beta, days, I0, S0, output_filename="si_model.png"):
         ode_func=ode,
         compartments=[
             {"label": "Modtagelige (S)", "y0": S0},
-            {"label": "Inficerede (I)", "y0": I0},
+            {"label": "Smittede (I)", "y0": I0},
         ],
         params={"β": beta},
         days=days,

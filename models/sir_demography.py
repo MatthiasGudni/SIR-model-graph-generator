@@ -13,14 +13,14 @@ def sir_demography(N, Alpha, beta, gamma, mu, days, I0, S0, R0, output_filename=
         ode_func=ode,
         compartments=[
             {"label": "Modtagelige (S)", "y0": S0},
-            {"label": "Inficerede (I)", "y0": I0},
+            {"label": "Smittede (I)", "y0": I0},
             {"label": "Fjernede/Døde (R)", "y0": R0},
         ],
         params={"Α": Alpha, "β": beta, "γ": gamma, "μ": mu},
         days=days,
         output_filename=output_filename,
         infected_index=1,
-        annotations=[{"text": f"R₀ = β/γ = {beta/gamma:.2f}", "x": 0.98, "y": 0.95}],
+        annotations=[{"text": f"R₀ = {beta / (gamma + mu):.2f}", "x": 0.98, "y": 0.95}, {"text": f"HIT = {(1 - (gamma + mu) / beta) * 100:.2f}%", "x": 0.98, "y": 0.90}],
         showRe=showRe,
         re_func=lambda sol, t, p, N: (p["β"] / (p["γ"] + p["μ"])) * sol.T[0] / N,
     )
