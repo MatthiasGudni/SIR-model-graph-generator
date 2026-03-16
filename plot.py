@@ -4,7 +4,7 @@ from models import si, sir
 def plot():
     t_all = time.time()
 
-    si(N=1000, beta=0.3, days=100,
+    si(N=1000, beta=0.3, gamma=0.05, days=100,
             I0=1, S0=999,
             output_filename="si_example.png")
 

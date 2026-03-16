@@ -1,6 +1,8 @@
 # AI-generated .gitignore file for a python project/library. 
 # Gad ikke skrive en selv, denne fil burde ignorere alt det som ikke er vigtigt
 
+# Output
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
