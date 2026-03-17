@@ -4,13 +4,24 @@ Denne script genererer epidemiologiske modelgrafer til brug som figurer i mit SR
 
 ## Modeller
 
+### SimpleSI-model
+En basal model med to tilstande og ingen restituering:
+- **S** – Modtagelige (*Susceptible*)
+- **I** – Inficerede (*Infected*)
+
 ### SI-model
-En simpel model med to tilstande:
+En udvidet SI-model med to tilstande:
 - **S** – Modtagelige (*Susceptible*)
 - **I** – Inficerede (*Infected*)
 
 ### SIR-model
-En udvidet model med tre tilstande:
+En model med tre tilstande:
+- **S** – Modtagelige (*Susceptible*)
+- **I** – Inficerede (*Infected*)
+- **R** – Fjernede/Døde (*Removed*)
+
+### SIRDemography-model
+En SIR-model med demografi (fødsler og dødsfald):
 - **S** – Modtagelige (*Susceptible*)
 - **I** – Inficerede (*Infected*)
 - **R** – Fjernede/Døde (*Removed*)
@@ -19,16 +30,27 @@ En udvidet model med tre tilstande:
 ## Brug
 
 ```python
-from models import si, sir
+from models import SimpleSI, SI, SIR, SIRDemography
 
 def plot():
-    si(N=1000, beta=0.3, days=100,
-            I0=1, S0=999,
-            output_filename="si_eksempel.png")
+    SimpleSI(N=1000, beta=0.3, I0=1, S0=999).run(
+        days=50, output_filename="simple_si_example.png")
 
-    sir(N=1000, beta=0.2, gamma=0.1, days=200,
-            I0=1, S0=999, R0=0,
-            output_filename="sir_eksempel.png")
+    SI(N=1000, beta=0.3, gamma=0.1, I0=1,
+        S0=999).run(days=100, showRe=True,
+        output_filename="si_example.png")
+
+    SIR(N=1000, beta=0.3, gamma=0.1, I0=1,
+        S0=999, R0=0).run(days=200, showRe=True,
+        output_filename="mild_epidemic.png")
+
+    SIR(N=1000, beta=0.5, gamma=0.05, I0=1,
+        S0=999, R0=0).run(days=200, showRe=True,
+        output_filename="severe_epidemic.png")
+
+    SIRDemography(N=1000, Alpha=10, beta=0.3, gamma=0.1,
+        mu=0.01, I0=1, S0=999, R0=0).run(days=300, showRe=True,
+        output_filename="sir_demography_example.png")
 
 if __name__ == "__main__":
     plot()

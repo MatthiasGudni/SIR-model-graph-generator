@@ -1,5 +1,4 @@
 
+__all__ = ["CompartmentalModel"]
 
-__all__ = ["run_model"]
-
-from .solver import run_model
+from .model import CompartmentalModel

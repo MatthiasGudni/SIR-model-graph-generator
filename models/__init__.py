@@ -1,12 +1,14 @@
 
 __all__ = [
-  "si",
-  "simple_si",
-  "sir",
-  "sir_demography",
+    "CompartmentalModel",
+    "SI",
+    "SimpleSI",
+    "SIR",
+    "SIRDemography",
 ]
 
-from .si import si
-from .simple_si import simple_si
-from .sir import sir
-from .sir_demography import sir_demography
+from .core.model import CompartmentalModel
+from .si import SI
+from .simple_si import SimpleSI
+from .sir import SIR
+from .sir_demography import SIRDemography
