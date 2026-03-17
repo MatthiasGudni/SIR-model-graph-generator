@@ -14,6 +14,6 @@ class CompartmentalModel(ABC):
         """Return kwargs to pass to the internal solver."""
         ...
 
-    def run(self, days=100, showRe=False, output_filename="model.png"):
+    def run(self, days=100, showRe=False, output="model.png"):
         """Solve and plot this model."""
-        _solve(**self._build(), days=days, showRe=showRe, output_filename=output_filename)
+        _solve(**self._build(), days=days, showRe=showRe, output=output)

@@ -17,7 +17,7 @@ def _math(key):
     """Return a mathtext-formatted string for a param key (italic)."""
     return _GREEK.get(key, f"${key}$")
 
-def run_model(name, ode_func, compartments, params, days, output_filename,
+def run_model(name, ode_func, compartments, params, days, output,
             infected_index=None, annotations=None,
             showRe=False, re_func=None):
     """
@@ -27,7 +27,7 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
         compartments     : List of dicts: [{"label": "Modtagelige (S)", "y0": 999}, ...]
         params           : Dict of model parameters, fx. {"β": 0.3, "γ": 0.05}
         days             : Number of days to simulate
-        output_filename  : Path to save the output PNG
+        output           : Path to save the output PNG
         infected_index   : Index of the infected compartment in the compartments list.
                             If set, adds "top smittede" and "50% smittede" annotations
                             automatically. E.g. infected_index=1 for SIR (S=0, I=1, R=2)
@@ -36,7 +36,7 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
     """
     t_start = time.time()
     param_str = ", ".join(f"{k}={v}" for k, v in params.items())
-    print(f"\n[{name}] Starting: {param_str}, days={days} → {output_filename}")
+    print(f"\n[{name}] Starting: {param_str}, days={days} → {output}")
 
     y0     = [c["y0"] for c in compartments]
     N      = sum(y0)
@@ -190,6 +190,6 @@ def run_model(name, ode_func, compartments, params, days, output_filename,
             )
 
     plt.tight_layout(pad=0)
-    plt.savefig(output_filename, dpi=150, bbox_inches="tight", pad_inches=0)
+    plt.savefig(output, dpi=150, bbox_inches="tight", pad_inches=0)
     plt.close()
-    print(f"[{name}] Saved as {output_filename} (total: {time.time() - t_start:.2f}s)")
+    print(f"[{name}] Saved as {output} (total: {time.time() - t_start:.2f}s)")
