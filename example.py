@@ -12,7 +12,7 @@ def plot():
 
     SIR(N=1000, beta=0.5, gamma=0.05, I0=1,
         S0=999, R0=0).run(days=200, showRe=True,
-        output="sir_epidemic.png")
+        output="sir_example.png")
 
 
     SIRDemography(N=1000, Alpha=10, beta=0.3, gamma=0.1,
